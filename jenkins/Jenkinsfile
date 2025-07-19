@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Sareenh1/web-app-deployment.git'
+            }
+        }
+        
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                dir('docker') {
+                    sh 'docker build -t sareen/simple-web-app .'
+                    sh 'docker push sareen/simple-web-app'
+                }
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                dir('kubernetes') {
+                    sh 'kubectl apply -f deployment.yaml'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
