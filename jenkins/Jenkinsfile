@@ -1,16 +1,18 @@
 pipeline {
     agent any
     
-      environment {
+    environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-creds').username
         AWS_SECRET_ACCESS_KEY = credentials('aws-creds').password
         DOCKER_IMAGE          = 'sareen/simple-web-app'
         KUBE_CONFIG           = credentials('kube-config')
-
+    }
+    
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Sareenh1/web-app-deployment.git'
+                git branch: 'main', 
+                    url: 'https://github.com/Sareenh1/web-app-deployment.git'
             }
         }
         
@@ -25,17 +27,18 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {
-                dir('docker') {
-                    sh 'docker build -t sareen/simple-web-app .'
-                    sh 'docker push sareen/simple-web-app'
+                script {
+                    docker.build("${env.DOCKER_IMAGE}")
                 }
             }
         }
         
         stage('Deploy to Kubernetes') {
             steps {
-                dir('kubernetes') {
-                    sh 'kubectl apply -f deployment.yaml'
+                withKubeConfig([credentialsId: 'kube-config']) {
+                    sh 'kubectl apply -f k8s/deployment.yaml'
+                    sh 'kubectl apply -f k8s/service.yaml'
+                    sh 'kubectl rollout status deployment/web-app-deployment'
                 }
             }
         }
