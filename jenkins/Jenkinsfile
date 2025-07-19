@@ -4,8 +4,8 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-creds').username
         AWS_SECRET_ACCESS_KEY = credentials('aws-creds').password
-        DOCKER_IMAGE          = 'sareen/simple-web-app'
-        KUBE_CONFIG           = credentials('kube-config')
+        DOCKER_IMAGE         = 'sareen/simple-web-app'
+        KUBE_CONFIG          = credentials('kube-config')
     }
     
     stages {
