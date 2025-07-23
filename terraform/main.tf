@@ -3,9 +3,9 @@ provider "aws" {
 }
 
 resource "aws_instance" "web_server" {
-  count         = 10
+  count         = 5
   ami           = "ami-0f918f7e67a3323f0"
-  instance_type = "t2.medium"
+  instance_type = "t2.micro"
   
   tags = {
     Name = "web-server-${count.index + 1}"
